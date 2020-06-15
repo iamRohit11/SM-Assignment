@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: mvs_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: docker
+    container_name: mvs_db_cont
+    ports:
+      - "15432:5432"
+    volumes:
+      - db_vol:/var/lib/postgresql/data
+volumes:
+  db_vol:

@@ -1,0 +1,183 @@
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
+<!-- Google Fonts -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap">
+<!-- Bootstrap core CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet">
+<!-- Material Design Bootstrap -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.18.0/css/mdb.min.css" rel="stylesheet">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.serializeJSON/2.9.0/jquery.serializejson.js"></script>
+
+<style>
+    .modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+.close {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+</style>
+
+
+{% extends "base.html" %}
+{% block title %}Search Movies{% endblock %}
+{% block content %}
+<div class="container-fluid my-2" >
+  
+  <nav class="navbar navbar-expand-sm bg- navbar-dark my-2">
+    <ul class="navbar-nav">
+      <li class="nav-item"><a class="nav-link text-primary" href="{% url 'Home' %}" style="padding-top:5; padding-bottom:5;">Home<span class="sr-only">(current)</span></a></li>
+    </ul>
+  </nav>
+</div>
+<div class="container my-3">
+    <form id="id_form" enctype='multipart/form-data'>
+        {% csrf_token %}
+        <div class="form-group col-5">
+        <label for="Movies">Search for Movies</label>
+        <select name = "mv" class="js-example-basic-multiple js-states form-control" id="id_movies" multiple="multiple">
+            {% for m in movies %}
+            <option value="{{ m.id }}">{{ m }}</option>
+            {% endfor %}
+        </select>
+        </div>
+    </form>
+    <button id="id_search" type="button" class="btn btn-info btn-sm">Search</button>
+    <p class="normal text-warning mt-2" id="error_id"></p>
+    <ul class="list-group mt-2" id="id_list">
+
+    </ul>
+
+</div>
+<div id="myModal" class="modal">
+    <div class="modal-content"><span class="close">&times;</span></div>
+    <!-- Modal content -->
+    <div id="weather_data" class="modal-content">
+      
+    </div>
+  
+  </div>
+<script type="text/javascript">
+$(document).ready(function() {
+    $("#id_movies").select2();
+  });
+var fd;
+$("#id_search").click (function (){
+    fd = $('#id_form').serializeJSON();
+    $.ajax({
+        url: "{% url 'search-results' %}",
+        data: fd,
+        cache: false,
+        dataType: "json",
+        type: 'GET',
+        statusCode: {
+            404: function(responseObject, textStatus, jqXHR) {
+                $("#error_id").empty();
+                $("#error_id").append($('<p>').text('Please provide a choice'));
+            },
+            200: function(movies){
+                var item = '';
+                $("#error_id").empty();
+                $.each(movies, function( index, value ) {
+                    var pk = value['id'];
+                    item += '<li class="list-group-item">'+'<p class="normal">'+value['title']+"("+value['released']+")"+'</p>';
+                    item += '<p class="small"><span> Directed by-'+value['director']+'</span><span> Written by- '+value['writer']+'</span><span> Produced by- '+value['produced_by']+'</span></p>';
+                    item += '<p class="small"><span> Shooting Location: '+value['address']['Locality']+'</span><span>, '+value['address']['City']+'</span><span>, '+value['address']['State']+'</span><span>, '+value['address']['Country']+'</p>';
+                    item += '<button class = "btn btn-primary btn-sm ml-1" onclick="current_condition(\''+value['id']+'\')" type="button"> Current Weather Details</a>';
+                    item += '<button class = "btn btn-secondary btn-sm ml-2" onclick="forecast_condition(\''+value['id']+'\')" type="button"> Forecast of tomorrow</a></li>';
+                    $("#id_list").empty();
+                    $("#id_list").append(item);
+                    console.log(value);
+                });
+                
+            }
+        }
+    });
+});
+var close_btn=document.getElementsByClassName("close")[0];
+close_btn.onclick= function(){
+    document.getElementById("myModal").style.display="none";
+}
+function current_condition(pk){
+    var mvpk = pk,s='';
+    var modal = document.getElementById("myModal");
+    $.ajax({
+        url: "{% url 'curr-weather' %}",
+        data: {id : mvpk},
+        cache: false,
+        dataType: "json",
+        type: 'GET',
+        success: function(weather){
+            s += '<p class="normal text-warning">'+weather['text']+'</p><p class="normal">Temperature:'+weather['temperature']+'C Real Feel:'+weather['real_feel']+'C </p>';
+            s += '<p class="normal">Relative Humidity: '+weather['rel_humidity']+' Wind Speed: '+weather['wind_speed']+'Km/h ('+weather['wind_dir']+')</p>';
+            if(weather['rain_type'] != null){
+                s += '<p class="normal">Precipitation: '+weather['raining']+'mm ('+weather['rain_type']+')</p>';
+            }
+            else{
+                s += '<p class="small">No Precipitation</p>';
+            }
+            s += '<p class="normal">Visibility: '+weather['visibility']+'</p>';
+            $("#weather_data").empty();
+            $("#weather_data").append(s);
+        }
+    });
+    modal.style.display = "block";
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }   
+}
+function forecast_condition(pk){
+    var mvpk = pk,s='';
+    var modal = document.getElementById("myModal");
+    $.ajax({
+        url: "{% url 'forecast-weather' %}",
+        data: {id : mvpk},
+        cache: false,
+        dataType: "json",
+        type: 'GET',
+        statusCode: {
+            404: function(responseObject, textStatus, jqXHR){
+                $("#weather_data").empty();
+                $("#weather_data").append($('<p>').text('Sorry, No data found'));
+            },
+            200: function(responseObject, textStatus, jqXHR){
+                $("#weather_data").empty();
+            }
+        }
+    });
+}
+</script>
+{% endblock %}

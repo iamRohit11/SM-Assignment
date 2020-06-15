@@ -1,0 +1,107 @@
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
+<!-- Google Fonts -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap">
+<!-- Bootstrap core CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet">
+<!-- Material Design Bootstrap -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.18.0/css/mdb.min.css" rel="stylesheet">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.serializeJSON/2.9.0/jquery.serializejson.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+
+{% extends "base.html" %}
+{% block title %}Add Movie{% endblock %}
+{% block content %}
+
+<div class="container-fluid my-3" >
+    <nav class="navbar navbar-expand-sm bg- navbar-dark">
+      <ul class="navbar-nav">
+        <li class="nav-item"><a class="nav-link text-primary" href="{% url 'Home' %}" style="padding-top:5; padding-bottom:5;">Home<span class="sr-only">(current)</span></a></li>
+      </ul>
+    </nav>
+</div>
+<div class="container my-3">
+    <form method="POST" action=".">
+        {% csrf_token %}
+        <div class="form-row my-2">
+            <div class="form-group col-4">
+                <lable>Title</lable>
+                <input type="text" class="form-control" name="title">
+            </div>
+            <div class="form-group col-2 ml-2">
+                <lable>Release Year</lable>
+                <input type="number" step="1" class="form-control" name="year">
+            </div>
+        </div>
+        <div class="form-row my-2">
+            <div class="form-group col-3">
+                <label for="Source">Select Director</label>
+                <select class="form-control" name="director">
+                    <option selected>Choose...</option>
+                    {% for d in director %}
+                    <option value="{{ d.pk }}">{{ d }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group col-3 ml-2">
+                <label for="Source">Select Writer</label>
+                <select class="form-control" name="writer">
+                    <option selected>Choose...</option>
+                    {% for d in writer %}
+                    <option value="{{ d.pk }}">{{ d }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="form-row my-2">
+            <div class="form-group col-4">
+                <label for="Source">Select Production-Company</label>
+                <select class="form-control" name="prodcom">
+                    <option selected>Choose...</option>
+                    {% for d in prodcom %}
+                    <option value="{{ d.pk }}">{{ d }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+        </div>
+        <p class="text-secondary">Enter the Address of Shooting Location</p>
+        <div class="form-row my-1">
+            <div class="form-group col-3">
+                <label>Locality</label>
+                <input type="text" class="form-control" name="locality">
+            </div>
+            <div class="form-group col-3 ml-1">
+                <label>City</label>
+                <input type="text" class="form-control" name="city">
+            </div>
+        </div>
+        <div class="form-row my-2">
+            <div class="form-group col-3 mx-1">
+                <label>State</label>
+                <input type="text" class="form-control" name="state">
+            </div>
+            <div class="form-group col-3 mx-1">
+                <label>Country</label>
+                <select class="form-control" name="country">
+                    <option selected>Choose...</option>
+                    {% for d in country %}
+                    <option value="{{ d.code }}">{{ d }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-sm btn-success">Create</button>
+    </form>
+</div>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#id_actors").select2();
+      });
+</script>
+{% endblock %}
