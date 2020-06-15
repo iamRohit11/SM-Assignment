@@ -175,6 +175,7 @@ function forecast_condition(pk){
             },
             200: function(responseObject, textStatus, jqXHR){
                 $("#weather_data").empty();
+                console.log(responseObject);
             }
         }
     });
