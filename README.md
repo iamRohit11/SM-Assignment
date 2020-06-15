@@ -15,4 +15,4 @@ Build and start Docker container & services using 'docker-compose up' command fr
 
 Move to src Directory using 'cd src/'
 
-Run the Development server using 'python3 manage.py runserver <portnumber>'
+Run the Development server using 'python3 manage.py runserver -portnumber'
