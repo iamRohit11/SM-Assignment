@@ -95,6 +95,16 @@ $(document).ready(function() {
 var fd;
 $("#id_search").click (function (){
     fd = $('#id_form').serializeJSON();
+    var box = document.getElementById('id_movies');
+    var options = box && box.options,opt,result = [];
+    for(var i=0;i<options.length;i++){
+        opt = options[i];
+        if(opt.selected){
+            result.push(opt.value);
+        }
+    }
+    console.log(result);
+    fd['mv'] = result;
     $.ajax({
         url: "{% url 'search-results' %}",
         data: fd,
@@ -104,10 +114,12 @@ $("#id_search").click (function (){
         statusCode: {
             404: function(responseObject, textStatus, jqXHR) {
                 $("#error_id").empty();
+                $("#id_list").empty();
                 $("#error_id").append($('<p>').text('Please provide a choice'));
             },
             200: function(movies){
                 var item = '';
+                console.log(movies);
                 $("#error_id").empty();
                 $.each(movies, function( index, value ) {
                     var pk = value['id'];
@@ -172,10 +184,22 @@ function forecast_condition(pk){
             404: function(responseObject, textStatus, jqXHR){
                 $("#weather_data").empty();
                 $("#weather_data").append($('<p>').text('Sorry, No data found'));
+                modal.style.display = "block";
+                window.onclick = function(event) {
+                    if (event.target == modal) {
+                        modal.style.display = "none";
+                    }
+                }
             },
             200: function(responseObject, textStatus, jqXHR){
                 $("#weather_data").empty();
                 console.log(responseObject);
+                modal.style.display = "block";
+                window.onclick = function(event) {
+                    if (event.target == modal) {
+                        modal.style.display = "none";
+                    }
+                }
             }
         }
     });

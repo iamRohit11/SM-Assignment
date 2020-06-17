@@ -91,7 +91,7 @@ def LocSearch(request):
 def search_results(request):
     try:
         get_dict = dict(six.iterlists(request.GET))
-        mpks = get_dict['mv']
+        mpks = get_dict['mv[]']
         movies = Movie.objects.none()
         for i in mpks:
             movies |= Movie.objects.filter(id=i)
@@ -126,6 +126,9 @@ def forecasted_weather(request):
         movie_obj = Movie.objects.get(id=request.GET['id'])
         loc_id = movie_obj.location_id
         api_data = get_forecast(loc_id)
-        return Response(data=api_data,status=status.HTTP_200_OK)
+        forecast = {
+            'rainfall' : api_data['Precipitation']
+        }
+        return Response(data=forecast,status=status.HTTP_200_OK)
     except:
-        return Response(data={},status=status.HTTP_404_NOT_FOUND)
+        return Response(data=api_data,status=status.HTTP_404_NOT_FOUND)
